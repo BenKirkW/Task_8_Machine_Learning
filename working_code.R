@@ -54,3 +54,5 @@ ch4_clean <- ch4 %>% separate(Sample, into = c("Location", "Year"), sep = "[_-]"
 # Calculate the percentage of missing values for each column
 column_missing_percentage <- colMeans(is.na(ch4)) * 100
 print(column_missing_percentage)
+
+
