@@ -71,7 +71,7 @@ linear_model <- linear_reg() |>
 
 #Let’s center the predictors (methylation values for each CpG site) in the recipe: ----
 
-age_recipe <- recipe(Age ~ ., data = ch4_clean_done) |> 
+age_recipe <- recipe(Age ~ ., data = ch4_clean_done2) |> 
   step_center(all_predictors(),-all_nominal())  # Centering the predictors except the 3 factor variables: Location, Year, and Age category
 
 #Create a Workflow
@@ -82,11 +82,26 @@ workflow_model <- workflow() |>
 #By combining these steps, you ensure that: 1. The same preprocessing steps are applied consistently to new data 2. The entire modeling process can be saved as a single object 3. Cross-validation and resampling can be performed on the complete workflow
 
 #fit the model----
-fit_model <- fit(workflow_model, data = ch4_clean_done)
+#fit_model <- fit(workflow_model, data = ch4_clean_done)
+
+#fit_model_summary <- tidy(fit_model)
+#fit_model_summary
+
+#realised this will not work using the model as need predicter variables to be numeric
+
+
+ch4_clean_done2 <- ch4_clean_done2 |> 
+  mutate(across(c(Age, Year), ~ as.numeric(as.character(.))))
+
+# Replace non-numeric values with NA
+ch4_clean_done2 <- ch4_clean_done2 |> 
+  mutate(across(c(Year, Age), ~ ifelse(is.na(.), NA, .)))
+
+#####
+fit_model <- fit(workflow_model, data = ch4_clean_done2)
 
 fit_model_summary <- tidy(fit_model)
 fit_model_summary
-
 #Biological Interpretation: Each coefficient represents how much a one-unit change in methylation at a specific CpG site affects predicted age. Positive coefficients indicate sites where methylation increases with age, while negative coefficients show sites where methylation decreases with age.
 #Stop and Think: Which CpG sites appear most important for predicting age? Are there any that don’t seem significantly associated with age?
 
